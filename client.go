@@ -211,6 +211,7 @@ func (p *AliyunMQClient) Send0(method Method, headers map[string]string, message
 	url := buffer.String()
 
 	req := fasthttp.AcquireRequest()
+	defer fasthttp.ReleaseRequest(req)
 
 	req.SetRequestURI(url)
 	req.Header.SetMethod(string(method))
@@ -223,6 +224,7 @@ func (p *AliyunMQClient) Send0(method Method, headers map[string]string, message
 	resp := fasthttp.AcquireResponse()
 
 	if err = p.client.Do(req, resp); err != nil {
+		fasthttp.ReleaseResponse(resp)
 		err = ErrSendRequestFailed.New(errors.Params{"err": err})
 		return nil, err
 	}
@@ -237,6 +239,7 @@ func (p *AliyunMQClient) Send(decoder MQDecoder, method Method, headers map[stri
 	}
 
 	if resp != nil {
+		defer fasthttp.ReleaseResponse(resp)
 		statusCode = resp.Header.StatusCode()
 
 		if statusCode != fasthttp.StatusCreated &&
