@@ -145,7 +145,12 @@ func (p *AliyunMQClient) initFastHttpClient() {
 	p.clientLocker.Lock()
 	defer p.clientLocker.Unlock()
 
-	p.client = &fasthttp.Client{ReadTimeout: p.timeout, WriteTimeout: p.timeout, Name: ClientName}
+	p.client = &fasthttp.Client{
+		ReadTimeout:        p.timeout,
+		WriteTimeout:       p.timeout,
+		MaxConnWaitTimeout: p.timeout,
+		Name:               ClientName,
+	}
 }
 
 func (p *AliyunMQClient) authorization(method Method, headers map[string]string, resource string) (authHeader string, err error) {
